@@ -1,0 +1,60 @@
+[
+  {
+    "id": 1785100935919,
+    "date": "2026-07-26T21:22:15.919Z",
+    "name": "sdfkm",
+    "state": "Kerala",
+    "stage1Answers": {
+      "ulcer": "No",
+      "patch": "Yes",
+      "lump": "Yes",
+      "difficulty": "Yes",
+      "burning": "Yes"
+    },
+    "stage2Answers": {
+      "age": null,
+      "gender": null,
+      "smoke": null,
+      "smokeStart": null,
+      "smokeDuration": null,
+      "smokeQty": null,
+      "chew": null,
+      "chewStart": null,
+      "chewDuration": null,
+      "chewFreq": null,
+      "alcohol": null
+    },
+    "result": "High Risk",
+    "hasSymptoms": true,
+    "score": null
+  },
+  {
+    "id": 1785101075703,
+    "date": "2026-07-26T21:24:35.703Z",
+    "name": "qwer",
+    "state": "Karnataka",
+    "stage1Answers": {
+      "ulcer": "No",
+      "patch": "No",
+      "lump": "No",
+      "difficulty": "No",
+      "burning": "No"
+    },
+    "stage2Answers": {
+      "age": 1,
+      "gender": 0,
+      "smoke": 0,
+      "smokeStart": null,
+      "smokeDuration": null,
+      "smokeQty": null,
+      "chew": 0,
+      "chewStart": null,
+      "chewDuration": null,
+      "chewFreq": null,
+      "alcohol": 1
+    },
+    "result": "Low Risk",
+    "hasSymptoms": false,
+    "score": 2
+  }
+]

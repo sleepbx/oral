@@ -1,7 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 
-const dataFilePath = path.join(process.cwd(), 'data.json');
+// Use /tmp in production (Vercel) because the root file system is read-only
+const isProd = process.env.NODE_ENV === 'production';
+const dataFilePath = isProd ? path.join('/tmp', 'data.json') : path.join(process.cwd(), 'data.json');
 
 export function getSubmissions() {
   if (!fs.existsSync(dataFilePath)) {

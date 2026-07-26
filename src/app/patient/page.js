@@ -258,7 +258,7 @@ export default function PatientPortal() {
         question="3. Do you smoke any tobacco products?" name="smoke"
         options={[{label: 'No, I don\'t', value: 0, icon: '🚭'}, {label: 'Yes, I do', value: 1, icon: '🚬'}]}
       />
-      {formData.stage2Answers.smoke === 1 && (
+      {formData.stage2Answers.smoke?.value === 1 && (
         <div style={{ padding: '1.5rem', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)', marginBottom: '2.5rem' }}>
           <OptionGroup question="Age at initiation" name="smokeStart" options={[{label: 'After 25 years', value: 0}, {label: 'Before 25 years', value: 1}]} />
           <OptionGroup question="Duration" name="smokeDuration" options={[{label: '< 10 years', value: 0}, {label: '≥ 10 years', value: 1}]} />
@@ -270,7 +270,7 @@ export default function PatientPortal() {
         question="4. Do you chew smokeless tobacco?" name="chew"
         options={[{label: 'No, I don\'t', value: 0, icon: '✅'}, {label: 'Yes, I do', value: 1, icon: '⚠️'}]}
       />
-      {formData.stage2Answers.chew === 1 && (
+      {formData.stage2Answers.chew?.value === 1 && (
         <div style={{ padding: '1.5rem', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)', marginBottom: '2.5rem' }}>
           <OptionGroup question="Age at initiation" name="chewStart" options={[{label: 'After 20 years', value: 0}, {label: 'Before 20 years', value: 1}]} />
           <OptionGroup question="Duration" name="chewDuration" options={[{label: '< 5 years', value: 0}, {label: '≥ 5 years', value: 1}]} />

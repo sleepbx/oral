@@ -7,7 +7,8 @@ export default function AdminDashboard() {
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchSubmissions = () => {
+    setLoading(true);
     fetch('/api/submissions')
       .then(res => res.json())
       .then(data => {
@@ -18,7 +19,50 @@ export default function AdminDashboard() {
         console.error(err);
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchSubmissions();
   }, []);
+
+  const handleReset = async () => {
+    if (confirm('Are you sure you want to delete all patient records? This cannot be undone.')) {
+      setLoading(true);
+      await fetch('/api/submissions/reset', { method: 'DELETE' });
+      fetchSubmissions();
+    }
+  };
+
+  const handleDownload = () => {
+    if (submissions.length === 0) return alert('No data to download.');
+    
+    // Create CSV header
+    const headers = ['Date', 'Patient Name', 'State', 'Has Symptoms', 'Risk Score', 'Final Assessment'];
+    
+    // Map rows
+    const rows = submissions.map(sub => [
+      new Date(sub.date).toLocaleDateString(),
+      `"${sub.name}"`, // Quote to handle commas in names
+      `"${sub.state}"`,
+      sub.hasSymptoms ? 'Yes' : 'No',
+      sub.hasSymptoms ? 'Skipped (Symptoms)' : sub.score,
+      sub.result
+    ]);
+    
+    // Combine
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    
+    // Download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `patient_records_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const getBadgeClass = (riskLevel) => {
     if (riskLevel === 'High Risk') return 'badge badge-high';
@@ -28,14 +72,25 @@ export default function AdminDashboard() {
 
   return (
     <main className="admin-container">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h1>Dashboard</h1>
           <p>Recent patient screenings</p>
         </div>
-        <Link href="/" className="btn btn-outline" style={{ minHeight: '40px', padding: '0.5rem 1rem', width: 'auto' }}>
-          Home
-        </Link>
+        
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <button onClick={handleDownload} className="btn btn-outline" style={{ minHeight: '40px', padding: '0.5rem 1rem', width: 'auto', display: 'flex', gap: '0.5rem' }}>
+            <span>📥</span> Export CSV
+          </button>
+          
+          <button onClick={handleReset} className="btn" style={{ minHeight: '40px', padding: '0.5rem 1rem', width: 'auto', background: 'var(--danger-bg)', color: 'var(--danger)', border: '1px solid #fecaca', display: 'flex', gap: '0.5rem' }}>
+            <span>🗑️</span> Reset All
+          </button>
+          
+          <Link href="/" className="btn btn-primary" style={{ minHeight: '40px', padding: '0.5rem 1rem', width: 'auto' }}>
+            Home
+          </Link>
+        </div>
       </div>
 
       <div className="table-wrapper">

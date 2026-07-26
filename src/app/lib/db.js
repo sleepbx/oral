@@ -20,3 +20,7 @@ export function addSubmission(submission) {
   });
   fs.writeFileSync(dataFilePath, JSON.stringify(submissions, null, 2));
 }
+
+export function clearSubmissions() {
+  fs.writeFileSync(dataFilePath, JSON.stringify([]));
+}

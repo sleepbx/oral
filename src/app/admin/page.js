@@ -9,7 +9,7 @@ export default function AdminDashboard() {
 
   const fetchSubmissions = () => {
     setLoading(true);
-    fetch('/api/submissions')
+    fetch('/api/submissions?t=' + Date.now())
       .then(res => res.json())
       .then(data => {
         setSubmissions(data);

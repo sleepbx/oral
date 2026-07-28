@@ -50,11 +50,11 @@ export default function AdminDashboard() {
     const headers = [
       'ID', 'Date', 'Patient Name', 'State', 'Language', 
       'Exact Age', 'Exact Gender',
-      'Assessment Age', 'Assessment Gender',
-      'Ulcer', 'Patch', 'Lump', 'Difficulty', 'Burning',
-      'Smoke', 'Smoke Start', 'Smoke Duration', 'Smoke Qty',
-      'Chew', 'Chew Start', 'Chew Duration', 'Chew Freq',
-      'Alcohol',
+      'S1 Ulcer', 'S2 Patch', 'S3 Lump', 'S4 Difficulty', 'S5 Burning',
+      'Q1 Age', 'Q2 Gender',
+      'Q3 Smoke', 'Q4 Smoke Start', 'Q5 Smoke Duration', 'Q6 Smoke Qty',
+      'Q7 Chew', 'Q8 Chew Start', 'Q9 Chew Duration', 'Q10 Chew Freq',
+      'Q11 Alcohol',
       'Has Symptoms', 'Risk Score', 'Final Assessment'
     ];
     
@@ -76,13 +76,13 @@ export default function AdminDashboard() {
         `"${typeof sub.language === 'object' ? (sub.language?.label || sub.language?.value) : (sub.language || 'English')}"`,
         `"${f.profileAge || 'N/A'}"`,
         `"${f.profileGender || 'N/A'}"`,
-        `"${safeLabel(f.age)}"`,
-        `"${safeLabel(f.gender)}"`,
         `"${safeLabel(f.ulcer)}"`,
         `"${safeLabel(f.patch)}"`,
         `"${safeLabel(f.lump)}"`,
         `"${safeLabel(f.difficulty)}"`,
         `"${safeLabel(f.burning)}"`,
+        `"${safeLabel(f.age)}"`,
+        `"${safeLabel(f.gender)}"`,
         `"${safeLabel(f.smoke)}"`,
         `"${safeLabel(f.smokeStart)}"`,
         `"${safeLabel(f.smokeDuration)}"`,

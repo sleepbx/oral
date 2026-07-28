@@ -397,6 +397,14 @@ export default function PatientPortal() {
       
       submissions.push(newSubmission);
       localStorage.setItem('oral_submissions', JSON.stringify(submissions));
+
+      // Also save online
+      fetch('/api/submissions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newSubmission)
+      }).catch(e => console.error("Failed to save online:", e));
+
     } catch (err) {
       console.error('Error saving to localStorage', err);
     }

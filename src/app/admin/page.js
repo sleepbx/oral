@@ -12,22 +12,38 @@ export default function AdminDashboard() {
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchSubmissions = () => {
+  const fetchSubmissions = async () => {
     setLoading(true);
+    let localSubmissions = [];
     try {
       const stored = localStorage.getItem('oral_submissions');
       if (stored) {
-        let parsed = JSON.parse(stored);
-        // Sort by date descending
-        parsed.sort((a, b) => new Date(b.date) - new Date(a.date));
-        setSubmissions(parsed);
-      } else {
-        setSubmissions([]);
+        localSubmissions = JSON.parse(stored);
       }
     } catch (err) {
       console.error(err);
-      setSubmissions([]);
     }
+    
+    try {
+      const res = await fetch('/api/submissions');
+      const data = await res.json();
+      if (data.submissions && data.submissions.length > 0) {
+        // Merge and deduplicate by ID
+        const merged = [...localSubmissions];
+        const localIds = new Set(localSubmissions.map(s => s.id));
+        for (const sub of data.submissions) {
+          if (!localIds.has(sub.id)) {
+            merged.push(sub);
+          }
+        }
+        localSubmissions = merged;
+      }
+    } catch(err) {
+      console.error("Failed to fetch online submissions", err);
+    }
+    
+    localSubmissions.sort((a, b) => new Date(b.date) - new Date(a.date));
+    setSubmissions(localSubmissions);
     setLoading(false);
   };
 
@@ -39,6 +55,8 @@ export default function AdminDashboard() {
     if (confirm('Are you sure you want to delete all patient records? This cannot be undone.')) {
       setLoading(true);
       localStorage.removeItem('oral_submissions');
+      // If we wanted to clear online db, we would send a DELETE to /api/submissions, 
+      // but let's just clear local for safety unless they really want both wiped.
       fetchSubmissions();
     }
   };
@@ -187,7 +205,7 @@ export default function AdminDashboard() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h1>Dashboard</h1>
-          <p>Recent patient screenings (Offline Storage)</p>
+          <p>Recent patient screenings (Local & Online Storage)</p>
         </div>
         
         <div style={{ display: 'flex', gap: '1rem' }}>

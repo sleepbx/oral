@@ -47,18 +47,53 @@ export default function AdminDashboard() {
     if (submissions.length === 0) return alert('No data to download.');
     
     // Create CSV header
-    const headers = ['Date', 'Patient Name', 'State', 'Language', 'Has Symptoms', 'Risk Score', 'Final Assessment'];
+    const headers = [
+      'ID', 'Date', 'Patient Name', 'State', 'Language', 
+      'Age', 'Gender',
+      'Ulcer', 'Patch', 'Lump', 'Difficulty', 'Burning',
+      'Smoke', 'Smoke Start', 'Smoke Duration', 'Smoke Qty',
+      'Chew', 'Chew Start', 'Chew Duration', 'Chew Freq',
+      'Alcohol',
+      'Has Symptoms', 'Risk Score', 'Final Assessment'
+    ];
     
     // Map rows
-    const rows = submissions.map(sub => [
-      new Date(sub.date).toLocaleDateString(),
-      `"${sub.name || ''}"`, // Quote to handle commas in names
-      `"${sub.state || ''}"`,
-      `"${typeof sub.language === 'object' ? (sub.language?.label || sub.language?.value) : (sub.language || 'English')}"`,
-      sub.hasSymptoms ? 'Yes' : 'No',
-      sub.hasSymptoms ? 'Skipped (Symptoms)' : (sub.score !== null ? sub.score : 'N/A'),
-      sub.result
-    ]);
+    const rows = submissions.map(sub => {
+      const f = sub.formData || {};
+      
+      const safeLabel = (obj) => {
+        if (!obj) return 'N/A';
+        if (typeof obj === 'string') return obj;
+        return obj.label || 'N/A';
+      };
+
+      return [
+        `"${sub.id || ''}"`,
+        `"${new Date(sub.date).toLocaleDateString()}"`,
+        `"${sub.name || ''}"`,
+        `"${sub.state || ''}"`,
+        `"${typeof sub.language === 'object' ? (sub.language?.label || sub.language?.value) : (sub.language || 'English')}"`,
+        `"${safeLabel(f.age)}"`,
+        `"${safeLabel(f.gender)}"`,
+        `"${safeLabel(f.ulcer)}"`,
+        `"${safeLabel(f.patch)}"`,
+        `"${safeLabel(f.lump)}"`,
+        `"${safeLabel(f.difficulty)}"`,
+        `"${safeLabel(f.burning)}"`,
+        `"${safeLabel(f.smoke)}"`,
+        `"${safeLabel(f.smokeStart)}"`,
+        `"${safeLabel(f.smokeDuration)}"`,
+        `"${safeLabel(f.smokeQty)}"`,
+        `"${safeLabel(f.chew)}"`,
+        `"${safeLabel(f.chewStart)}"`,
+        `"${safeLabel(f.chewDuration)}"`,
+        `"${safeLabel(f.chewFreq)}"`,
+        `"${safeLabel(f.alcohol)}"`,
+        sub.hasSymptoms ? 'Yes' : 'No',
+        sub.hasSymptoms ? 'Skipped (Symptoms)' : (sub.score !== null ? sub.score : 'N/A'),
+        `"${sub.result || ''}"`
+      ];
+    });
     
     // Combine
     const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');

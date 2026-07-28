@@ -360,6 +360,7 @@ export default function PatientPortal() {
       name: formData.name,
       state: formData.state,
       language: formData.language,
+      formData: formData,
       hasSymptoms,
       score,
       result: riskLevel

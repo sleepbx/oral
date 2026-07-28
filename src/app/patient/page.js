@@ -27,6 +27,7 @@ export default function PatientPortal() {
     chewDuration: null,
     chewFreq: null,
     alcohol: null,
+    consent: false,
   });
 
   const [riskResult, setRiskResult] = useState(null);
@@ -106,6 +107,11 @@ export default function PatientPortal() {
       lowRisk: "Low Risk",
       errFill: "Please fill out all fields to continue.",
       errSelect: "Please select an option to continue.",
+      errConsent: "You must agree to the terms to proceed.",
+      disclaimerMainTitle: "Disclaimer & Consent",
+      disclaimerMainText1: "Oral cancer is a serious health concern, and early detection is key to improving outcomes. Many people are unaware of their personal risk, and access to regular screening can be limited. Mobile applications can provide a simple, convenient way for individuals to assess their risk and get guidance on seeking professional care.",
+      disclaimerMainText2: "This study focuses on developing and validating a mobile app for self-assessment of oral cancer risk, helping users understand their risk level and promoting timely consultation with dental or medical professionals.",
+      disclaimerConsent: "I confirm that I have read and understood the information above and voluntarily agree to participate.",
       disclaimerTitle: "Disclaimer",
       disclaimerText: "Oral cancer is a serious health concern, and early detection is key to improving outcomes. This application is for informational self-assessment purposes only and does not substitute professional medical advice, diagnosis, or treatment. Your participation was completely voluntary."
     },
@@ -171,6 +177,11 @@ export default function PatientPortal() {
       lowRisk: "कम जोखिम",
       errFill: "कृपया जारी रखने के लिए सभी फ़ील्ड भरें।",
       errSelect: "कृपया जारी रखने के लिए एक विकल्प चुनें।",
+      errConsent: "आगे बढ़ने के लिए आपको शर्तों से सहमत होना होगा।",
+      disclaimerMainTitle: "अस्वीकरण और सहमति",
+      disclaimerMainText1: "मुँह का कैंसर एक गंभीर स्वास्थ्य समस्या है, और इसका जल्दी पता लगाना परिणामों को सुधारने में महत्वपूर्ण है। कई लोग अपने व्यक्तिगत जोखिम से अनजान हैं और नियमित जांच तक उनकी पहुँच सीमित हो सकती है। मोबाइल एप्लिकेशन व्यक्तियों को अपने जोखिम का सरल और सुविधाजनक तरीके से मूल्यांकन करने और पेशेवर देखभाल लेने के मार्गदर्शन में मदद कर सकते हैं।",
+      disclaimerMainText2: "यह अध्ययन मौखिक कैंसर जोखिम के स्वयं मूल्यांकन के लिए मोबाइल एप्लिकेशन विकसित और सत्यापित करने पर केंद्रित है, जिससे उपयोगकर्ताओं को उनके जोखिम स्तर को समझने और दंत या चिकित्सा पेशेवरों के साथ समय पर परामर्श को बढ़ावा देने में मदद मिलती है।",
+      disclaimerConsent: "मैं पुष्टि करता/करती हूँ कि मैंने उपरोक्त जानकारी पढ़ और समझ ली है और स्वेच्छा से भाग लेने के लिए सहमत हूँ।",
       disclaimerTitle: "अस्वीकरण",
       disclaimerText: "मुँह का कैंसर एक गंभीर स्वास्थ्य समस्या है, और इसका जल्दी पता लगाना परिणामों को सुधारने में महत्वपूर्ण है। यह एप्लिकेशन केवल सूचनात्मक स्व-मूल्यांकन उद्देश्यों के लिए है और पेशेवर चिकित्सा सलाह का विकल्प नहीं है। आपकी भागीदारी पूरी तरह से स्वैच्छिक थी।"
     }
@@ -193,20 +204,27 @@ export default function PatientPortal() {
       return;
     }
     
-    // Step 1: Profile
+    // Step 1: Disclaimer & Consent
     if (step === 1) {
-      if (!formData.name || !formData.state) return setErrorMsg(str.errFill);
+      if (!formData.consent) return setErrorMsg(str.errConsent);
       goNext(2);
       return;
     }
 
+    // Step 2: Profile
+    if (step === 2) {
+      if (!formData.name || !formData.state) return setErrorMsg(str.errFill);
+      goNext(3);
+      return;
+    }
+
     // Stage 1 questions
-    if (step >= 2 && step <= 6) {
+    if (step >= 3 && step <= 7) {
       const stage1Keys = ['ulcer', 'patch', 'lump', 'difficulty', 'burning'];
-      const key = stage1Keys[step - 2];
+      const key = stage1Keys[step - 3];
       if (formData[key] === null) return setErrorMsg(str.errSelect);
       
-      if (step === 6) {
+      if (step === 7) {
         if (formData.ulcer === 'Yes' || formData.patch === 'Yes' || formData.lump === 'Yes' || formData.difficulty === 'Yes' || formData.burning === 'Yes') {
           submitResult(str.highRisk, str.highRiskRec, true);
           return;
@@ -225,75 +243,75 @@ export default function PatientPortal() {
       return true;
     };
 
-    if (step === 7) {
-      if (!validateChoice('age')) return;
-      goNext(8);
-      return;
-    }
-    
     if (step === 8) {
-      if (!validateChoice('gender')) return;
+      if (!validateChoice('age')) return;
       goNext(9);
       return;
     }
     
     if (step === 9) {
+      if (!validateChoice('gender')) return;
+      goNext(10);
+      return;
+    }
+    
+    if (step === 10) {
       if (!validateChoice('smoke')) return;
       if (formData.smoke.value === 1) {
-        goNext(10);
+        goNext(11);
       } else {
-        goNext(13); // Skip smoke details
+        goNext(14); // Skip smoke details
       }
       return;
     }
 
-    if (step === 10) {
-      if (!validateChoice('smokeStart')) return;
-      goNext(11);
-      return;
-    }
-
     if (step === 11) {
-      if (!validateChoice('smokeDuration')) return;
+      if (!validateChoice('smokeStart')) return;
       goNext(12);
       return;
     }
 
     if (step === 12) {
-      if (!validateChoice('smokeQty')) return;
+      if (!validateChoice('smokeDuration')) return;
       goNext(13);
       return;
     }
 
     if (step === 13) {
-      if (!validateChoice('chew')) return;
-      if (formData.chew.value === 1) {
-        goNext(14);
-      } else {
-        goNext(17); // Skip chew details
-      }
+      if (!validateChoice('smokeQty')) return;
+      goNext(14);
       return;
     }
 
     if (step === 14) {
-      if (!validateChoice('chewStart')) return;
-      goNext(15);
+      if (!validateChoice('chew')) return;
+      if (formData.chew.value === 1) {
+        goNext(15);
+      } else {
+        goNext(18); // Skip chew details
+      }
       return;
     }
 
     if (step === 15) {
-      if (!validateChoice('chewDuration')) return;
+      if (!validateChoice('chewStart')) return;
       goNext(16);
       return;
     }
 
     if (step === 16) {
-      if (!validateChoice('chewFreq')) return;
+      if (!validateChoice('chewDuration')) return;
       goNext(17);
       return;
     }
 
     if (step === 17) {
+      if (!validateChoice('chewFreq')) return;
+      goNext(18);
+      return;
+    }
+
+    if (step === 18) {
       if (!validateChoice('alcohol')) return;
       
       let score = 0;
@@ -358,9 +376,9 @@ export default function PatientPortal() {
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
     
-    // push step 18 to history so back button is disabled on result
+    // push step 19 to history so back button is disabled on result
     setHistory([...history, step]);
-    setStep(18); // Result page
+    setStep(19); // Result page
     setLoading(false);
   };
 
@@ -439,6 +457,31 @@ export default function PatientPortal() {
       case 1:
         return (
           <div className="content-area">
+            <h1 style={{ fontSize: '1.75rem', marginBottom: '1.5rem', lineHeight: '1.3' }}>{str.disclaimerMainTitle}</h1>
+            <p style={{ marginBottom: '1.25rem', fontSize: '1.05rem', lineHeight: '1.6', color: 'var(--text-main)' }}>
+              {str.disclaimerMainText1}
+            </p>
+            <p style={{ marginBottom: '2rem', fontSize: '1.05rem', lineHeight: '1.6', color: 'var(--text-main)' }}>
+              {str.disclaimerMainText2}
+            </p>
+            <ErrorMessage />
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', marginBottom: '2rem', textAlign: 'left', background: 'var(--bg-secondary)', padding: '1.25rem', borderRadius: 'var(--radius-md)' }}>
+              <input 
+                type="checkbox" 
+                id="consentCheck" 
+                checked={formData.consent} 
+                onChange={(e) => setFormData({...formData, consent: e.target.checked})} 
+                style={{ width: '1.5rem', height: '1.5rem', flexShrink: 0, marginTop: '0.2rem', accentColor: 'var(--primary)' }} 
+              />
+              <label htmlFor="consentCheck" style={{ fontSize: '1rem', fontWeight: '500', cursor: 'pointer', lineHeight: '1.5' }}>
+                {str.disclaimerConsent}
+              </label>
+            </div>
+          </div>
+        );
+      case 2:
+        return (
+          <div className="content-area">
             <h1>{str.profile}</h1>
             <p style={{ marginBottom: '2rem' }}>{str.profileDesc}</p>
             <ErrorMessage />
@@ -470,7 +513,7 @@ export default function PatientPortal() {
             </div>
           </div>
         );
-      case 2:
+      case 3:
         return (
           <div className="content-area">
             <h2>{str.sympHeader} (1/5)</h2>
@@ -478,7 +521,7 @@ export default function PatientPortal() {
             <YesNoQuestion question={str.q_ulcer} name="ulcer" />
           </div>
         );
-      case 3:
+      case 4:
         return (
           <div className="content-area">
             <h2>{str.sympHeader} (2/5)</h2>
@@ -486,7 +529,7 @@ export default function PatientPortal() {
             <YesNoQuestion question={str.q_patch} name="patch" />
           </div>
         );
-      case 4:
+      case 5:
         return (
           <div className="content-area">
             <h2>{str.sympHeader} (3/5)</h2>
@@ -494,7 +537,7 @@ export default function PatientPortal() {
             <YesNoQuestion question={str.q_lump} name="lump" />
           </div>
         );
-      case 5:
+      case 6:
         return (
           <div className="content-area">
             <h2>{str.sympHeader} (4/5)</h2>
@@ -502,7 +545,7 @@ export default function PatientPortal() {
             <YesNoQuestion question={str.q_diff} name="difficulty" />
           </div>
         );
-      case 6:
+      case 7:
         return (
           <div className="content-area">
             <h2>{str.sympHeader} (5/5)</h2>
@@ -510,7 +553,7 @@ export default function PatientPortal() {
             <YesNoQuestion question={str.q_burn} name="burning" />
           </div>
         );
-      case 7:
+      case 8:
         return (
           <div className="content-area">
             <h2>{str.riskHeader} (Q1)</h2>
@@ -521,7 +564,7 @@ export default function PatientPortal() {
             />
           </div>
         );
-      case 8:
+      case 9:
         return (
           <div className="content-area">
             <h2>{str.riskHeader} (Q2)</h2>
@@ -532,7 +575,7 @@ export default function PatientPortal() {
             />
           </div>
         );
-      case 9:
+      case 10:
         return (
           <div className="content-area">
             <h2>{str.riskHeader} (Q3)</h2>
@@ -543,7 +586,7 @@ export default function PatientPortal() {
             />
           </div>
         );
-      case 10:
+      case 11:
         return (
           <div className="content-area">
             <h2>{str.riskHeader} (Q4)</h2>
@@ -554,7 +597,7 @@ export default function PatientPortal() {
             />
           </div>
         );
-      case 11:
+      case 12:
         return (
           <div className="content-area">
             <h2>{str.riskHeader} (Q5)</h2>
@@ -565,7 +608,7 @@ export default function PatientPortal() {
             />
           </div>
         );
-      case 12:
+      case 13:
         return (
           <div className="content-area">
             <h2>{str.riskHeader} (Q6)</h2>
@@ -576,7 +619,7 @@ export default function PatientPortal() {
             />
           </div>
         );
-      case 13:
+      case 14:
         return (
           <div className="content-area">
             <h2>{str.riskHeader} (Q7)</h2>
@@ -587,7 +630,7 @@ export default function PatientPortal() {
             />
           </div>
         );
-      case 14:
+      case 15:
         return (
           <div className="content-area">
             <h2>{str.riskHeader} (Q8)</h2>
@@ -598,7 +641,7 @@ export default function PatientPortal() {
             />
           </div>
         );
-      case 15:
+      case 16:
         return (
           <div className="content-area">
             <h2>{str.riskHeader} (Q9)</h2>
@@ -609,7 +652,7 @@ export default function PatientPortal() {
             />
           </div>
         );
-      case 16:
+      case 17:
         return (
           <div className="content-area">
             <h2>{str.riskHeader} (Q10)</h2>
@@ -620,7 +663,7 @@ export default function PatientPortal() {
             />
           </div>
         );
-      case 17:
+      case 18:
         return (
           <div className="content-area">
             <h2>{str.riskHeader} (Q11)</h2>
@@ -631,7 +674,7 @@ export default function PatientPortal() {
             />
           </div>
         );
-      case 18:
+      case 19:
         const isHigh = riskResult.riskLevel === str.highRisk;
         const isMod = riskResult.riskLevel === str.modRisk;
         const badgeClass = isHigh ? 'badge-high' : isMod ? 'badge-moderate' : 'badge-low';
@@ -695,19 +738,20 @@ export default function PatientPortal() {
     }
   };
 
-  const totalSteps = 18;
-  // If we are at step 18 (Result), progress is 100%. Otherwise it's step/18 * 100
-  const progressPercent = step < 18 ? ((step + 1) / totalSteps) * 100 : 100;
+  const totalSteps = 19;
+  // If we are at step 19 (Result), progress is 100%. Otherwise it's step/19 * 100
+  const progressPercent = step < 19 ? ((step + 1) / totalSteps) * 100 : 100;
   
   let sectionName = '';
   if (step === 0) sectionName = str.langHeader;
-  else if (step === 1) sectionName = str.profile;
-  else if (step >= 2 && step <= 6) sectionName = str.sympHeader;
-  else if (step >= 7 && step <= 17) sectionName = str.riskHeader;
+  else if (step === 1) sectionName = str.disclaimerMainTitle;
+  else if (step === 2) sectionName = str.profile;
+  else if (step >= 3 && step <= 7) sectionName = str.sympHeader;
+  else if (step >= 8 && step <= 18) sectionName = str.riskHeader;
 
   return (
     <main className="app-container">
-      {step < 18 && (
+      {step < 19 && (
         <div className="progress-header">
            <div className="progress-track">
              <div className="progress-fill" style={{ width: `${progressPercent}%` }}></div>
@@ -723,12 +767,12 @@ export default function PatientPortal() {
       
       <div className="bottom-bar">
         <div className="bottom-bar-inner" style={{ display: 'flex', gap: '1rem' }}>
-          {step > 0 && step < 18 && (
+          {step > 0 && step < 19 && (
             <button className="btn btn-outline" onClick={handleBack} disabled={loading} style={{ flex: '1' }}>
               {str.backBtn}
             </button>
           )}
-          {step < 18 ? (
+          {step < 19 ? (
             <button className="btn btn-primary" onClick={handleNext} disabled={loading} style={{ flex: '2' }}>
               {loading ? str.processing : str.continueBtn}
             </button>

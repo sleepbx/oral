@@ -10,7 +10,7 @@ export default function Home() {
         </div>
 
         <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>
-          Oral Health
+          OraRisk
         </h1>
         
         <p style={{ marginBottom: '3rem', fontSize: '1.1rem' }}>

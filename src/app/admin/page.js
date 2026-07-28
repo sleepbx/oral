@@ -54,7 +54,7 @@ export default function AdminDashboard() {
       new Date(sub.date).toLocaleDateString(),
       `"${sub.name || ''}"`, // Quote to handle commas in names
       `"${sub.state || ''}"`,
-      `"${sub.language || 'English'}"`,
+      `"${typeof sub.language === 'object' ? (sub.language?.label || sub.language?.value) : (sub.language || 'English')}"`,
       sub.hasSymptoms ? 'Yes' : 'No',
       sub.hasSymptoms ? 'Skipped (Symptoms)' : (sub.score !== null ? sub.score : 'N/A'),
       sub.result
@@ -192,7 +192,7 @@ export default function AdminDashboard() {
                     <td style={{ color: 'var(--text-muted)' }}>{new Date(sub.date).toLocaleDateString()}</td>
                     <td style={{ fontWeight: 600 }}>{sub.name}</td>
                     <td>{sub.state}</td>
-                    <td>{sub.language || 'en'}</td>
+                    <td>{typeof sub.language === 'object' ? (sub.language?.label || sub.language?.value) : (sub.language || 'en')}</td>
                     <td>
                       {sub.hasSymptoms ? (
                         <span style={{ color: 'var(--danger)', fontWeight: 500 }}>Reported</span>

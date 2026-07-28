@@ -68,7 +68,7 @@ export default function AdminDashboard() {
       };
 
       return [
-        `"${sub.id || ''}"`,
+        `"ID-${sub.id || ''}"`,
         `"${new Date(sub.date).toLocaleDateString()}"`,
         `"${sub.name || ''}"`,
         `"${sub.state || ''}"`,

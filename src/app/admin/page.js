@@ -4,31 +4,41 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 export default function AdminDashboard() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchSubmissions = () => {
     setLoading(true);
-    fetch('/api/submissions?t=' + Date.now())
-      .then(res => res.json())
-      .then(data => {
-        setSubmissions(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error(err);
-        setLoading(false);
-      });
+    try {
+      const stored = localStorage.getItem('oral_submissions');
+      if (stored) {
+        let parsed = JSON.parse(stored);
+        // Sort by date descending
+        parsed.sort((a, b) => new Date(b.date) - new Date(a.date));
+        setSubmissions(parsed);
+      } else {
+        setSubmissions([]);
+      }
+    } catch (err) {
+      console.error(err);
+      setSubmissions([]);
+    }
+    setLoading(false);
   };
 
   useEffect(() => {
     fetchSubmissions();
   }, []);
 
-  const handleReset = async () => {
+  const handleReset = () => {
     if (confirm('Are you sure you want to delete all patient records? This cannot be undone.')) {
       setLoading(true);
-      await fetch('/api/submissions/reset', { method: 'DELETE' });
+      localStorage.removeItem('oral_submissions');
       fetchSubmissions();
     }
   };
@@ -37,15 +47,16 @@ export default function AdminDashboard() {
     if (submissions.length === 0) return alert('No data to download.');
     
     // Create CSV header
-    const headers = ['Date', 'Patient Name', 'State', 'Has Symptoms', 'Risk Score', 'Final Assessment'];
+    const headers = ['Date', 'Patient Name', 'State', 'Language', 'Has Symptoms', 'Risk Score', 'Final Assessment'];
     
     // Map rows
     const rows = submissions.map(sub => [
       new Date(sub.date).toLocaleDateString(),
-      `"${sub.name}"`, // Quote to handle commas in names
-      `"${sub.state}"`,
+      `"${sub.name || ''}"`, // Quote to handle commas in names
+      `"${sub.state || ''}"`,
+      `"${sub.language || 'English'}"`,
       sub.hasSymptoms ? 'Yes' : 'No',
-      sub.hasSymptoms ? 'Skipped (Symptoms)' : sub.score,
+      sub.hasSymptoms ? 'Skipped (Symptoms)' : (sub.score !== null ? sub.score : 'N/A'),
       sub.result
     ]);
     
@@ -70,12 +81,75 @@ export default function AdminDashboard() {
     return 'badge badge-low';
   };
 
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (username === 'riya grag' && password === 'oral@1234567890') {
+      setIsAuthenticated(true);
+      setLoginError('');
+    } else {
+      setLoginError('Invalid username or password');
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <main className="app-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--bg-main)' }}>
+        <div style={{ width: '100%', maxWidth: '400px', background: 'var(--card-bg)', padding: '2.5rem 2rem', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-lg)' }}>
+          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔒</div>
+            <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Admin Login</h1>
+            <p style={{ color: 'var(--text-muted)' }}>Secure access required</p>
+          </div>
+
+          <form onSubmit={handleLogin}>
+            {loginError && (
+              <div style={{ padding: '0.75rem', background: 'var(--danger-bg)', color: 'var(--danger)', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem', fontSize: '0.9rem', textAlign: 'center' }}>
+                {loginError}
+              </div>
+            )}
+
+            <div className="input-group">
+              <label className="label">Username</label>
+              <input 
+                type="text" 
+                className="input-field" 
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                placeholder="Enter username"
+                required
+              />
+            </div>
+
+            <div className="input-group">
+              <label className="label">Password</label>
+              <input 
+                type="password" 
+                className="input-field" 
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="Enter password"
+                required
+              />
+            </div>
+
+            <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1rem' }}>
+              Login
+            </button>
+            <Link href="/" style={{ display: 'block', textAlign: 'center', marginTop: '1rem', color: 'var(--text-muted)', textDecoration: 'none' }}>
+              Return Home
+            </Link>
+          </form>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="admin-container">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h1>Dashboard</h1>
-          <p>Recent patient screenings</p>
+          <p>Recent patient screenings (Offline Storage)</p>
         </div>
         
         <div style={{ display: 'flex', gap: '1rem' }}>
@@ -106,6 +180,7 @@ export default function AdminDashboard() {
                   <th>Date</th>
                   <th>Patient</th>
                   <th>State</th>
+                  <th>Lang</th>
                   <th>Stage 1 Symptoms</th>
                   <th>Risk Score</th>
                   <th>Final Assessment</th>
@@ -117,6 +192,7 @@ export default function AdminDashboard() {
                     <td style={{ color: 'var(--text-muted)' }}>{new Date(sub.date).toLocaleDateString()}</td>
                     <td style={{ fontWeight: 600 }}>{sub.name}</td>
                     <td>{sub.state}</td>
+                    <td>{sub.language || 'en'}</td>
                     <td>
                       {sub.hasSymptoms ? (
                         <span style={{ color: 'var(--danger)', fontWeight: 500 }}>Reported</span>
@@ -125,7 +201,7 @@ export default function AdminDashboard() {
                       )}
                     </td>
                     <td>
-                      {sub.hasSymptoms ? <span style={{ color: 'var(--text-muted)' }}>Skipped</span> : <span style={{ fontWeight: 600 }}>{sub.score} / 12</span>}
+                      {sub.hasSymptoms ? <span style={{ color: 'var(--text-muted)' }}>Skipped</span> : <span style={{ fontWeight: 600 }}>{sub.score !== null ? sub.score : '-'}</span>}
                     </td>
                     <td>
                       <span className={getBadgeClass(sub.result)}>

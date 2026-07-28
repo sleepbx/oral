@@ -6,8 +6,9 @@ import { useRouter } from 'next/navigation';
 export default function PatientPortal() {
   const router = useRouter();
   const [step, setStep] = useState(0); 
+  const [history, setHistory] = useState([]);
   const [formData, setFormData] = useState({
-    language: 'English',
+    language: 'hi', // Hindi first
     name: '',
     state: '',
     ulcer: null,
@@ -26,7 +27,6 @@ export default function PatientPortal() {
     chewDuration: null,
     chewFreq: null,
     alcohol: null,
-    consent: false,
   });
 
   const [riskResult, setRiskResult] = useState(null);
@@ -43,126 +43,258 @@ export default function PatientPortal() {
     "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"
   ];
 
+  const t = {
+    en: {
+      langHeader: "Select Language",
+      langDesc: "Choose your preferred language.",
+      profile: "Profile",
+      profileDesc: "Enter your details to begin the screening.",
+      nameLabel: "Full Name",
+      stateLabel: "State",
+      continueBtn: "Continue",
+      backBtn: "Back",
+      processing: "Processing...",
+      homeBtn: "Return Home",
+      sympHeader: "Symptom Screening",
+      yes: "Yes",
+      no: "No",
+      q_ulcer: "Do you have a mouth ulcer that has not healed for more than 3 weeks?",
+      q_patch: "Do you have any red or white patch inside your mouth?",
+      q_lump: "Do you have any lump or swelling in your mouth?",
+      q_diff: "Do you have difficulty in opening your mouth or chewing food?",
+      q_burn: "Do you experience a burning sensation in your mouth, especially while consuming hot or spicy food?",
+      riskHeader: "Risk Factors",
+      q_age: "What is your age?",
+      a_age0: "Less than 30 years",
+      a_age1: "≥ 30 years",
+      q_gender: "What is your gender?",
+      a_gender0: "Male",
+      a_gender1: "Female",
+      q_smoke: "Do you smoke any tobacco products such as cigarettes or beedis?",
+      q_smokeStart: "At what age did you start smoking tobacco?",
+      a_never: "Never",
+      a_after25: "After 25 years",
+      a_before25: "Before 25 years",
+      q_smokeDur: "For how many years have you been smoking?",
+      a_less10: "Less than 10 years",
+      a_more10: "More than 10 years",
+      q_smokeQty: "On average, how many cigarettes/beedis do you smoke per day?",
+      a_less10day: "Less than 10 per day",
+      a_more10day: "More than 10 per day",
+      q_chew: "Do you chew any form of smokeless tobacco such as gutka, khaini, gudaku, paan with tobacco, or supari?",
+      q_chewStart: "At what age did you start using smokeless tobacco?",
+      a_after20: "After 20 years",
+      a_before20: "Before 20 years",
+      q_chewDur: "For how many years have you been using smokeless tobacco?",
+      a_less5: "Less than 5 years",
+      a_more5: "More than 5 years",
+      q_chewFreq: "On average, how many times do you chew smokeless tobacco per day?",
+      a_less5day: "Less than 5 times per day",
+      a_more5day: "More than 5 times per day",
+      q_alcohol: "Do you consume alcohol?",
+      a_less3: "Mostly <3 days a week",
+      a_more3: "Mostly >3 days a week",
+      resHeader: "Screening Complete",
+      resDesc: "Here is your personalized oral health risk assessment.",
+      classTitle: "Final Risk Classification",
+      scoreTitle: "Total Risk Score:",
+      recTitle: "Official Recommendation",
+      highRiskRec: "Automated In-App Notification: You are advised to consult with a nearby dental or medical professional for further clinical evaluation.",
+      lowRiskRec: "You are currently at a Low Risk. Maintain good oral hygiene and continue regular checkups.",
+      highRisk: "High Risk",
+      modRisk: "Moderate Risk",
+      lowRisk: "Low Risk",
+      errFill: "Please fill out all fields to continue.",
+      errSelect: "Please select an option to continue.",
+      disclaimerTitle: "Disclaimer",
+      disclaimerText: "Oral cancer is a serious health concern, and early detection is key to improving outcomes. This application is for informational self-assessment purposes only and does not substitute professional medical advice, diagnosis, or treatment. Your participation was completely voluntary."
+    },
+    hi: {
+      langHeader: "भाषा चुनें",
+      langDesc: "अपनी पसंदीदा भाषा चुनें।",
+      profile: "प्रोफ़ाइल",
+      profileDesc: "स्क्रीनिंग शुरू करने के लिए अपना विवरण दर्ज करें।",
+      nameLabel: "पूरा नाम",
+      stateLabel: "राज्य",
+      continueBtn: "जारी रखें",
+      backBtn: "पीछे",
+      processing: "प्रसंस्करण...",
+      homeBtn: "होम पर लौटें",
+      sympHeader: "लक्षण स्क्रीनिंग",
+      yes: "हाँ",
+      no: "नहीं",
+      q_ulcer: "क्या आपके मुँह में ऐसा घाव (अल्सर) है जो 3 सप्ताह से अधिक समय से ठीक नहीं हुआ है?",
+      q_patch: "क्या आपके मुँह के अंदर कोई लाल या सफेद धब्बा है?",
+      q_lump: "क्या आपके मुँह में कोई गाँठ या सूजन है?",
+      q_diff: "क्या आपको मुँह खोलने या भोजन चबाने में कठिनाई होती है?",
+      q_burn: "क्या आपको गरम या मसालेदार भोजन लेने पर मुँह में जलन का अनुभव होता है?",
+      riskHeader: "जोखिम कारक",
+      q_age: "आपकी आयु क्या है?",
+      a_age0: "30 वर्ष से कम",
+      a_age1: "30 वर्ष से अधिक",
+      q_gender: "आपका लिंग क्या है?",
+      a_gender0: "पुरुष",
+      a_gender1: "महिला",
+      q_smoke: "क्या आप किसी भी प्रकार के तंबाकू उत्पाद जैसे सिगरेट या बीड़ी का धूम्रपान करते हैं?",
+      q_smokeStart: "आपने तंबाकू का धूम्रपान किस आयु में प्रारम्भ किया?",
+      a_never: "कभी नहीं",
+      a_after25: "25 वर्ष की आयु के बाद",
+      a_before25: "25 वर्ष की आयु से पहले",
+      q_smokeDur: "आप कितने वर्षों से धूम्रपान कर रहे हैं?",
+      a_less10: "10 वर्ष से कम",
+      a_more10: "10 वर्ष से अधिक",
+      q_smokeQty: "औसतन, आप प्रतिदिन कितनी सिगरेट/बीड़ी का धूम्रपान करते हैं?",
+      a_less10day: "प्रतिदिन 10 से कम",
+      a_more10day: "प्रतिदिन 10 से अधिक",
+      q_chew: "क्या आप धूम्ररहित तंबाकू जैसे गुटखा, खैनी, गुड़ाकू, तंबाकू युक्त पान या सुपारी का उपयोग करते हैं?",
+      q_chewStart: "आपने धूम्ररहित तंबाकू का उपयोग किस आयु में प्रारम्भ किया?",
+      a_after20: "20 वर्ष की आयु के बाद",
+      a_before20: "20 वर्ष की आयु से पहले",
+      q_chewDur: "आप कितने वर्षों से धूम्ररहित तंबाकू का उपयोग कर रहे हैं?",
+      a_less5: "5 वर्ष से कम",
+      a_more5: "5 वर्ष से अधिक",
+      q_chewFreq: "औसतन, आप प्रतिदिन कितनी बार धूम्ररहित तंबाकू का उपयोग करते हैं?",
+      a_less5day: "प्रतिदिन 5 बार से कम",
+      a_more5day: "प्रतिदिन 5 बार से अधिक",
+      q_alcohol: "क्या आप मद्यपान करते हैं?",
+      a_less3: "सप्ताह में अधिकांशतः 3 दिनों से कम",
+      a_more3: "सप्ताह में अधिकांशतः 3 दिनों से अधिक",
+      resHeader: "स्क्रीनिंग पूर्ण",
+      resDesc: "यहाँ आपका व्यक्तिगत मौखिक स्वास्थ्य जोखिम मूल्यांकन है।",
+      classTitle: "अंतिम जोखिम वर्गीकरण",
+      scoreTitle: "कुल जोखिम स्कोर:",
+      recTitle: "आधिकारिक सिफारिश",
+      highRiskRec: "स्वचालित इन-ऐप अधिसूचना: आपको आगे के नैदानिक ​​मूल्यांकन के लिए पास के दंत या चिकित्सा पेशेवर से परामर्श करने की सलाह दी जाती है।",
+      lowRiskRec: "आप वर्तमान में कम जोखिम में हैं। अच्छी मौखिक स्वच्छता बनाए रखें और नियमित जांच जारी रखें।",
+      highRisk: "उच्च जोखिम",
+      modRisk: "मध्यम जोखिम",
+      lowRisk: "कम जोखिम",
+      errFill: "कृपया जारी रखने के लिए सभी फ़ील्ड भरें।",
+      errSelect: "कृपया जारी रखने के लिए एक विकल्प चुनें।",
+      disclaimerTitle: "अस्वीकरण",
+      disclaimerText: "मुँह का कैंसर एक गंभीर स्वास्थ्य समस्या है, और इसका जल्दी पता लगाना परिणामों को सुधारने में महत्वपूर्ण है। यह एप्लिकेशन केवल सूचनात्मक स्व-मूल्यांकन उद्देश्यों के लिए है और पेशेवर चिकित्सा सलाह का विकल्प नहीं है। आपकी भागीदारी पूरी तरह से स्वैच्छिक थी।"
+    }
+  };
+
+  const str = t[formData.language];
+
+  const goNext = (nextStep) => {
+    setHistory([...history, step]);
+    setStep(nextStep);
+  };
+
   const handleNext = () => {
     setErrorMsg('');
     
-    // Step 0: Disclaimer & Consent
+    // Step 0: Language
     if (step === 0) {
-      if (!formData.consent) return setErrorMsg('You must agree to the terms to proceed.');
-      setStep(1);
-      return;
-    }
-
-    // Step 1: Language
-    if (step === 1) {
-      setStep(2);
+      goNext(1);
       return;
     }
     
-    // Step 2: Profile
-    if (step === 2) {
-      if (!formData.name || !formData.state) return setErrorMsg('Please fill out all fields to continue.');
-      setStep(3);
+    // Step 1: Profile
+    if (step === 1) {
+      if (!formData.name || !formData.state) return setErrorMsg(str.errFill);
+      goNext(2);
       return;
     }
 
     // Stage 1 questions
-    if (step >= 3 && step <= 7) {
+    if (step >= 2 && step <= 6) {
       const stage1Keys = ['ulcer', 'patch', 'lump', 'difficulty', 'burning'];
-      const key = stage1Keys[step - 3];
-      if (formData[key] === null) return setErrorMsg('Please answer the question to continue.');
+      const key = stage1Keys[step - 2];
+      if (formData[key] === null) return setErrorMsg(str.errSelect);
       
-      // If we are at the last Stage 1 question (burning), check if any Stage 1 is Yes
-      if (step === 7) {
+      if (step === 6) {
         if (formData.ulcer === 'Yes' || formData.patch === 'Yes' || formData.lump === 'Yes' || formData.difficulty === 'Yes' || formData.burning === 'Yes') {
-          submitResult('High Risk', 'You have been identified as High Risk based on your symptoms. You are advised to consult with a nearby dental or medical professional for further clinical evaluation.', true);
+          submitResult(str.highRisk, str.highRiskRec, true);
           return;
         }
       }
-      setStep(step + 1);
+      goNext(step + 1);
       return;
     }
 
-    // Stage 2 Questions (step 8 to 18)
+    // Stage 2 Questions
     const validateChoice = (key) => {
       if (formData[key] === null) {
-        setErrorMsg('Please select an option to continue.');
+        setErrorMsg(str.errSelect);
         return false;
       }
       return true;
     };
 
-    if (step === 8) {
+    if (step === 7) {
       if (!validateChoice('age')) return;
-      setStep(9);
+      goNext(8);
+      return;
+    }
+    
+    if (step === 8) {
+      if (!validateChoice('gender')) return;
+      goNext(9);
       return;
     }
     
     if (step === 9) {
-      if (!validateChoice('gender')) return;
-      setStep(10);
-      return;
-    }
-    
-    if (step === 10) {
       if (!validateChoice('smoke')) return;
       if (formData.smoke.value === 1) {
-        setStep(11); // Go to smoke details
+        goNext(10);
       } else {
-        setStep(14); // Skip smoke details, go to chew
+        goNext(13); // Skip smoke details
       }
+      return;
+    }
+
+    if (step === 10) {
+      if (!validateChoice('smokeStart')) return;
+      goNext(11);
       return;
     }
 
     if (step === 11) {
-      if (!validateChoice('smokeStart')) return;
-      setStep(12);
+      if (!validateChoice('smokeDuration')) return;
+      goNext(12);
       return;
     }
 
     if (step === 12) {
-      if (!validateChoice('smokeDuration')) return;
-      setStep(13);
+      if (!validateChoice('smokeQty')) return;
+      goNext(13);
       return;
     }
 
     if (step === 13) {
-      if (!validateChoice('smokeQty')) return;
-      setStep(14);
-      return;
-    }
-
-    if (step === 14) {
       if (!validateChoice('chew')) return;
       if (formData.chew.value === 1) {
-        setStep(15); // Go to chew details
+        goNext(14);
       } else {
-        setStep(18); // Skip chew details, go to alcohol
+        goNext(17); // Skip chew details
       }
       return;
     }
 
-    if (step === 15) {
+    if (step === 14) {
       if (!validateChoice('chewStart')) return;
-      setStep(16);
+      goNext(15);
+      return;
+    }
+
+    if (step === 15) {
+      if (!validateChoice('chewDuration')) return;
+      goNext(16);
       return;
     }
 
     if (step === 16) {
-      if (!validateChoice('chewDuration')) return;
-      setStep(17);
+      if (!validateChoice('chewFreq')) return;
+      goNext(17);
       return;
     }
 
     if (step === 17) {
-      if (!validateChoice('chewFreq')) return;
-      setStep(18);
-      return;
-    }
-
-    if (step === 18) {
       if (!validateChoice('alcohol')) return;
-      // Calculate score
+      
       let score = 0;
       score += formData.age?.value || 0;
       score += formData.gender?.value || 0;
@@ -176,20 +308,27 @@ export default function PatientPortal() {
       score += formData.chewFreq?.value || 0;
       score += formData.alcohol?.value || 0;
 
-      let riskLevel = 'Low Risk';
-      let message = 'You are currently at a Low Risk. Maintain good oral hygiene and continue regular checkups.';
+      let riskLevel = str.lowRisk;
+      let message = str.lowRiskRec;
       
-      // Low Risk: 0-2, Moderate Risk: 3-7, High Risk: 8-16
       if (score >= 8) {
-        riskLevel = 'High Risk';
-        message = 'You have been identified as High Risk. You are advised to consult with a nearby dental or medical professional for further clinical evaluation.';
+        riskLevel = str.highRisk;
+        message = str.highRiskRec;
       } else if (score >= 3) {
-        riskLevel = 'Moderate Risk';
-        message = 'You have been identified as Moderate Risk. You are advised to consult with a nearby dental or medical professional for further clinical evaluation.';
+        riskLevel = str.modRisk;
+        message = str.highRiskRec;
       }
 
       submitResult(riskLevel, message, false, score);
     }
+  };
+
+  const handleBack = () => {
+    setErrorMsg('');
+    const newHistory = [...history];
+    const prevStep = newHistory.pop();
+    setHistory(newHistory);
+    setStep(prevStep);
   };
 
   const submitResult = (riskLevel, message, hasSymptoms, score = null) => {
@@ -207,7 +346,6 @@ export default function PatientPortal() {
       result: riskLevel
     };
     
-    // Save to localStorage
     try {
       const existing = localStorage.getItem('oral_submissions');
       const submissions = existing ? JSON.parse(existing) : [];
@@ -218,7 +356,10 @@ export default function PatientPortal() {
     }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    setStep(19); // Result page
+    
+    // push step 18 to history so back button is disabled on result
+    setHistory([...history, step]);
+    setStep(18); // Result page
     setLoading(false);
   };
 
@@ -238,7 +379,7 @@ export default function PatientPortal() {
         >
           <div className="option-card-content">
             <div className="option-icon">⚠️</div>
-            <span className="option-label">Yes</span>
+            <span className="option-label">{str.yes}</span>
           </div>
           <div style={{ color: formData[name] === 'Yes' ? 'var(--primary)' : 'transparent' }}>✓</div>
         </button>
@@ -248,7 +389,7 @@ export default function PatientPortal() {
         >
           <div className="option-card-content">
             <div className="option-icon">✅</div>
-            <span className="option-label">No</span>
+            <span className="option-label">{str.no}</span>
           </div>
           <div style={{ color: formData[name] === 'No' ? 'var(--primary)' : 'transparent' }}>✓</div>
         </button>
@@ -261,7 +402,7 @@ export default function PatientPortal() {
       <div style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '1rem' }}>{question}</div>
       <div className="option-list">
         {options.map((opt, i) => {
-          const isSelected = formData[name]?.label === opt.label;
+          const isSelected = formData[name]?.value === opt.value;
           return (
             <button 
               key={i}
@@ -285,251 +426,222 @@ export default function PatientPortal() {
       case 0:
         return (
           <div className="content-area">
-            <h1>Disclaimer & Consent</h1>
-            <p style={{ marginBottom: '1rem', fontSize: '0.95rem', lineHeight: '1.5' }}>
-              Oral cancer is a serious health concern, and early detection is key to improving outcomes. Many people are unaware of their personal risk, and access to regular screening can be limited. Mobile applications can provide a simple, convenient way for individuals to assess their risk and get guidance on seeking professional care. This study focuses on developing and validating a mobile app for self-assessment of oral cancer risk, helping users understand their risk level and promoting timely consultation with dental or medical professionals.
-            </p>
-            <p style={{ marginBottom: '1.5rem', fontSize: '0.95rem', lineHeight: '1.5' }}>
-              Your participation is completely voluntary and you have the right to refuse participation, refuse any question and withdraw at any time without any consequence whatsoever.
-            </p>
+            <h1>{str.langHeader}</h1>
+            <p style={{ marginBottom: '2rem' }}>{str.langDesc}</p>
             <ErrorMessage />
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '2rem', textAlign: 'left', background: 'var(--bg-secondary)', padding: '1rem', borderRadius: 'var(--radius-md)' }}>
-              <input 
-                type="checkbox" 
-                id="consentCheck" 
-                checked={formData.consent} 
-                onChange={(e) => setFormData({...formData, consent: e.target.checked})} 
-                style={{ width: '1.25rem', height: '1.25rem', flexShrink: 0 }} 
-              />
-              <label htmlFor="consentCheck" style={{ fontSize: '0.95rem', fontWeight: '500', cursor: 'pointer' }}>
-                I confirm that I have read and understood the information above and voluntarily agree to participate in this study.
-              </label>
-            </div>
+            <OptionGroup 
+              question="" name="language"
+              options={[{label: 'हिन्दी (Hindi)', value: 'hi'}, {label: 'English', value: 'en'}]}
+            />
           </div>
         );
       case 1:
         return (
           <div className="content-area">
-            <h1>Select Language</h1>
-            <p style={{ marginBottom: '2rem' }}>Choose your preferred language.</p>
-            <ErrorMessage />
-            <OptionGroup 
-              question="Language" name="language"
-              options={[{label: 'English', value: 'en'}, {label: 'Hindi', value: 'hi'}]}
-            />
-          </div>
-        );
-      case 2:
-        return (
-          <div className="content-area">
-            <h1>Profile</h1>
-            <p style={{ marginBottom: '2rem' }}>Enter your details to begin the screening.</p>
+            <h1>{str.profile}</h1>
+            <p style={{ marginBottom: '2rem' }}>{str.profileDesc}</p>
             <ErrorMessage />
             <div className="input-group">
-              <label className="label">Full Name</label>
+              <label className="label">{str.nameLabel}</label>
               <input 
                 type="text" 
                 className="input-field" 
-                placeholder="e.g. John Doe"
+                placeholder="John Doe"
                 value={formData.name}
                 onChange={e => setFormData({...formData, name: e.target.value})}
               />
             </div>
             <div className="input-group">
-              <label className="label">State</label>
+              <label className="label">{str.stateLabel}</label>
               <input 
                 type="text" 
                 list="states-list"
                 className="input-field" 
-                placeholder="Select or type your state"
+                placeholder="State"
                 value={formData.state}
                 onChange={e => setFormData({...formData, state: e.target.value})}
               />
               <datalist id="states-list">
-                {indianStates.map(state => (
-                  <option key={state} value={state} />
+                {indianStates.map(s => (
+                  <option key={s} value={s} />
                 ))}
               </datalist>
             </div>
           </div>
         );
+      case 2:
+        return (
+          <div className="content-area">
+            <h2>{str.sympHeader} (1/5)</h2>
+            <ErrorMessage />
+            <YesNoQuestion question={str.q_ulcer} name="ulcer" />
+          </div>
+        );
       case 3:
         return (
           <div className="content-area">
-            <h2>Symptom Screening (1/5)</h2>
+            <h2>{str.sympHeader} (2/5)</h2>
             <ErrorMessage />
-            <YesNoQuestion question="Do you have a mouth ulcer that has not healed for more than 3 weeks?" name="ulcer" />
+            <YesNoQuestion question={str.q_patch} name="patch" />
           </div>
         );
       case 4:
         return (
           <div className="content-area">
-            <h2>Symptom Screening (2/5)</h2>
+            <h2>{str.sympHeader} (3/5)</h2>
             <ErrorMessage />
-            <YesNoQuestion question="Do you have any red or white patch inside your mouth?" name="patch" />
+            <YesNoQuestion question={str.q_lump} name="lump" />
           </div>
         );
       case 5:
         return (
           <div className="content-area">
-            <h2>Symptom Screening (3/5)</h2>
+            <h2>{str.sympHeader} (4/5)</h2>
             <ErrorMessage />
-            <YesNoQuestion question="Do you have any lump or swelling in your mouth?" name="lump" />
+            <YesNoQuestion question={str.q_diff} name="difficulty" />
           </div>
         );
       case 6:
         return (
           <div className="content-area">
-            <h2>Symptom Screening (4/5)</h2>
+            <h2>{str.sympHeader} (5/5)</h2>
             <ErrorMessage />
-            <YesNoQuestion question="Do you have difficulty in opening your mouth or chewing food?" name="difficulty" />
+            <YesNoQuestion question={str.q_burn} name="burning" />
           </div>
         );
       case 7:
         return (
           <div className="content-area">
-            <h2>Symptom Screening (5/5)</h2>
+            <h2>{str.riskHeader} (Q1)</h2>
             <ErrorMessage />
-            <YesNoQuestion question="Do you experience a burning sensation in your mouth, especially while consuming hot or spicy food?" name="burning" />
+            <OptionGroup 
+              question={str.q_age} name="age"
+              options={[{label: str.a_age0, value: 0, icon: '🧑'}, {label: str.a_age1, value: 1, icon: '👨'}]}
+            />
           </div>
         );
       case 8:
         return (
           <div className="content-area">
-            <h2>Risk Factors (Q1)</h2>
+            <h2>{str.riskHeader} (Q2)</h2>
             <ErrorMessage />
             <OptionGroup 
-              question="What is your age?" name="age"
-              options={[{label: '< 30 years', value: 0, icon: '🧑'}, {label: '≥ 30 years', value: 1, icon: '👨'}]}
+              question={str.q_gender} name="gender"
+              options={[{label: str.a_gender1, value: 1, icon: '👩'}, {label: str.a_gender0, value: 0, icon: '👨'}]}
             />
           </div>
         );
       case 9:
         return (
           <div className="content-area">
-            <h2>Risk Factors (Q2)</h2>
+            <h2>{str.riskHeader} (Q3)</h2>
             <ErrorMessage />
             <OptionGroup 
-              question="What is your gender?" name="gender"
-              options={[{label: 'Female', value: 1, icon: '👩'}, {label: 'Male', value: 0, icon: '👨'}]}
+              question={str.q_smoke} name="smoke"
+              options={[{label: str.no, value: 0, icon: '🚭'}, {label: str.yes, value: 1, icon: '🚬'}]}
             />
           </div>
         );
       case 10:
         return (
           <div className="content-area">
-            <h2>Risk Factors (Q3)</h2>
+            <h2>{str.riskHeader} (Q4)</h2>
             <ErrorMessage />
             <OptionGroup 
-              question="Do you smoke any tobacco products?" name="smoke"
-              options={[{label: 'No, I don\'t', value: 0, icon: '🚭'}, {label: 'Yes, I do', value: 1, icon: '🚬'}]}
+              question={str.q_smokeStart} name="smokeStart"
+              options={[{label: str.a_never, value: 0}, {label: str.a_after25, value: 1}, {label: str.a_before25, value: 2}]}
             />
           </div>
         );
       case 11:
         return (
           <div className="content-area">
-            <h2>Risk Factors (Q4)</h2>
+            <h2>{str.riskHeader} (Q5)</h2>
             <ErrorMessage />
             <OptionGroup 
-              question="Age at initiation of smoking" name="smokeStart"
-              options={[{label: 'After 35 years', value: 0}, {label: '25 to 35 years', value: 1}, {label: 'Before 25 years', value: 2}]}
+              question={str.q_smokeDur} name="smokeDuration"
+              options={[{label: str.a_never, value: 0}, {label: str.a_less10, value: 1}, {label: str.a_more10, value: 2}]}
             />
           </div>
         );
       case 12:
         return (
           <div className="content-area">
-            <h2>Risk Factors (Q5)</h2>
+            <h2>{str.riskHeader} (Q6)</h2>
             <ErrorMessage />
             <OptionGroup 
-              question="Duration of smoking" name="smokeDuration"
-              options={[{label: '< 5 years', value: 0}, {label: '5 to 10 years', value: 1}, {label: '≥ 10 years', value: 2}]}
+              question={str.q_smokeQty} name="smokeQty"
+              options={[{label: str.a_never, value: 0}, {label: str.a_less10day, value: 1}, {label: str.a_more10day, value: 2}]}
             />
           </div>
         );
       case 13:
         return (
           <div className="content-area">
-            <h2>Risk Factors (Q6)</h2>
+            <h2>{str.riskHeader} (Q7)</h2>
             <ErrorMessage />
             <OptionGroup 
-              question="Quantity of smoking / day" name="smokeQty"
-              options={[{label: '< 5 / day', value: 0}, {label: '5 to 10 / day', value: 1}, {label: '≥ 10 / day', value: 2}]}
+              question={str.q_chew} name="chew"
+              options={[{label: str.no, value: 0, icon: '✅'}, {label: str.yes, value: 1, icon: '⚠️'}]}
             />
           </div>
         );
       case 14:
         return (
           <div className="content-area">
-            <h2>Risk Factors (Q7)</h2>
+            <h2>{str.riskHeader} (Q8)</h2>
             <ErrorMessage />
             <OptionGroup 
-              question="Do you chew smokeless tobacco?" name="chew"
-              options={[{label: 'No, I don\'t', value: 0, icon: '✅'}, {label: 'Yes, I do', value: 1, icon: '⚠️'}]}
+              question={str.q_chewStart} name="chewStart"
+              options={[{label: str.a_never, value: 0}, {label: str.a_after20, value: 1}, {label: str.a_before20, value: 2}]}
             />
           </div>
         );
       case 15:
         return (
           <div className="content-area">
-            <h2>Risk Factors (Q8)</h2>
+            <h2>{str.riskHeader} (Q9)</h2>
             <ErrorMessage />
             <OptionGroup 
-              question="Age at initiation of chewing tobacco" name="chewStart"
-              options={[{label: 'After 30 years', value: 0}, {label: '20 to 30 years', value: 1}, {label: 'Before 20 years', value: 2}]}
+              question={str.q_chewDur} name="chewDuration"
+              options={[{label: str.a_never, value: 0}, {label: str.a_less5, value: 1}, {label: str.a_more5, value: 2}]}
             />
           </div>
         );
       case 16:
         return (
           <div className="content-area">
-            <h2>Risk Factors (Q9)</h2>
+            <h2>{str.riskHeader} (Q10)</h2>
             <ErrorMessage />
             <OptionGroup 
-              question="Duration of chewing tobacco" name="chewDuration"
-              options={[{label: '< 3 years', value: 0}, {label: '3 to 5 years', value: 1}, {label: '≥ 5 years', value: 2}]}
+              question={str.q_chewFreq} name="chewFreq"
+              options={[{label: str.a_never, value: 0}, {label: str.a_less5day, value: 1}, {label: str.a_more5day, value: 2}]}
             />
           </div>
         );
       case 17:
         return (
           <div className="content-area">
-            <h2>Risk Factors (Q10)</h2>
+            <h2>{str.riskHeader} (Q11)</h2>
             <ErrorMessage />
             <OptionGroup 
-              question="Frequency of chewing tobacco / day" name="chewFreq"
-              options={[{label: '< 3 / day', value: 0}, {label: '3 to 5 / day', value: 1}, {label: '≥ 5 / day', value: 2}]}
+              question={str.q_alcohol} name="alcohol"
+              options={[{label: str.a_never, value: 0, icon: '💧'}, {label: str.a_less3, value: 1, icon: '🥂'}, {label: str.a_more3, value: 2, icon: '🍻'}]}
             />
           </div>
         );
       case 18:
-        return (
-          <div className="content-area">
-            <h2>Risk Factors (Q11)</h2>
-            <ErrorMessage />
-            <OptionGroup 
-              question="Alcohol Consumption" name="alcohol"
-              options={[{label: 'Never', value: 0, icon: '💧'}, {label: '< 3 days / wk', value: 1, icon: '🥂'}, {label: '≥ 3 days / wk', value: 2, icon: '🍻'}]}
-            />
-          </div>
-        );
-      case 19:
-        const isHigh = riskResult.riskLevel === 'High Risk';
-        const isMod = riskResult.riskLevel === 'Moderate Risk';
+        const isHigh = riskResult.riskLevel === str.highRisk;
+        const isMod = riskResult.riskLevel === str.modRisk;
         const badgeClass = isHigh ? 'badge-high' : isMod ? 'badge-moderate' : 'badge-low';
         const icon = isHigh ? '🚨' : isMod ? '⚠️' : '✅';
-        
-        const recommendationText = (isHigh || isMod) 
-          ? "Automated In-App Notification: You are advised to consult with a nearby dental or medical professional for further clinical evaluation."
-          : "You are currently at a Low Risk. Maintain good oral hygiene and continue regular checkups.";
 
         return (
           <div className="content-area" style={{ display: 'flex', flexDirection: 'column', padding: '2rem 1.5rem' }}>
             <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
               <div style={{ fontSize: '4.5rem', marginBottom: '1rem', animation: 'fadeIn 0.5s ease-out' }}>{icon}</div>
-              <h1 style={{ fontSize: '2.25rem', color: 'var(--text-main)' }}>Screening Complete</h1>
-              <p style={{ color: 'var(--text-muted)' }}>Here is your personalized oral health risk assessment.</p>
+              <h1 style={{ fontSize: '2.25rem', color: 'var(--text-main)' }}>{str.resHeader}</h1>
+              <p style={{ color: 'var(--text-muted)' }}>{str.resDesc}</p>
             </div>
             
             <div style={{ 
@@ -542,14 +654,14 @@ export default function PatientPortal() {
               textAlign: 'center'
             }}>
               <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: '600', marginBottom: '1rem' }}>
-                Final Risk Classification
+                {str.classTitle}
               </div>
               <div className={`badge ${badgeClass}`} style={{ fontSize: '1.75rem', padding: '0.75rem 1.5rem', borderRadius: 'var(--radius-md)' }}>
                 {riskResult.riskLevel}
               </div>
               {riskResult.score !== null && (
                 <div style={{ marginTop: '1rem', fontSize: '1.25rem', fontWeight: 500, color: 'var(--text-main)' }}>
-                  Total Risk Score: {riskResult.score}
+                  {str.scoreTitle} {riskResult.score}
                 </div>
               )}
             </div>
@@ -562,10 +674,17 @@ export default function PatientPortal() {
               marginBottom: '2rem'
             }}>
               <h3 style={{ color: (isHigh || isMod) ? '#b45309' : '#047857', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span>📋</span> Official Recommendation
+                <span>📋</span> {str.recTitle}
               </h3>
               <p style={{ fontSize: '1.15rem', color: (isHigh || isMod) ? '#92400e' : '#065f46', lineHeight: '1.6', fontWeight: '500' }}>
-                {recommendationText}
+                {riskResult.message}
+              </p>
+            </div>
+            
+            <div style={{ padding: '1.5rem', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)', marginTop: '1rem' }}>
+              <h4 style={{ fontSize: '1rem', marginBottom: '0.5rem', color: 'var(--text-main)' }}>{str.disclaimerTitle}</h4>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.5' }}>
+                {str.disclaimerText}
               </p>
             </div>
           </div>
@@ -575,19 +694,19 @@ export default function PatientPortal() {
     }
   };
 
-  const totalSteps = 19;
-  const progressPercent = step < 19 ? ((step + 1) / totalSteps) * 100 : 100;
+  const totalSteps = 18;
+  // If we are at step 18 (Result), progress is 100%. Otherwise it's step/18 * 100
+  const progressPercent = step < 18 ? ((step + 1) / totalSteps) * 100 : 100;
   
   let sectionName = '';
-  if (step === 0) sectionName = 'Consent';
-  else if (step === 1) sectionName = 'Language';
-  else if (step === 2) sectionName = 'Profile';
-  else if (step >= 3 && step <= 7) sectionName = 'Symptoms';
-  else if (step >= 8 && step <= 18) sectionName = 'Risk Factors';
+  if (step === 0) sectionName = str.langHeader;
+  else if (step === 1) sectionName = str.profile;
+  else if (step >= 2 && step <= 6) sectionName = str.sympHeader;
+  else if (step >= 7 && step <= 17) sectionName = str.riskHeader;
 
   return (
     <main className="app-container">
-      {step < 19 && (
+      {step < 18 && (
         <div className="progress-header">
            <div className="progress-track">
              <div className="progress-fill" style={{ width: `${progressPercent}%` }}></div>
@@ -603,18 +722,18 @@ export default function PatientPortal() {
       
       <div className="bottom-bar">
         <div className="bottom-bar-inner" style={{ display: 'flex', gap: '1rem' }}>
-          {step > 0 && step < 19 && (
-            <button className="btn btn-outline" onClick={() => setStep(step - 1)} disabled={loading} style={{ flex: '1' }}>
-              Back
+          {step > 0 && step < 18 && (
+            <button className="btn btn-outline" onClick={handleBack} disabled={loading} style={{ flex: '1' }}>
+              {str.backBtn}
             </button>
           )}
-          {step < 19 ? (
+          {step < 18 ? (
             <button className="btn btn-primary" onClick={handleNext} disabled={loading} style={{ flex: '2' }}>
-              {loading ? 'Processing...' : 'Continue'}
+              {loading ? str.processing : str.continueBtn}
             </button>
           ) : (
             <button className="btn btn-outline" onClick={() => router.push('/')} style={{ width: '100%' }}>
-              Return Home
+              {str.homeBtn}
             </button>
           )}
         </div>

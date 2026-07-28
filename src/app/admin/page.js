@@ -49,7 +49,8 @@ export default function AdminDashboard() {
     // Create CSV header
     const headers = [
       'ID', 'Date', 'Patient Name', 'State', 'Language', 
-      'Age', 'Gender',
+      'Exact Age', 'Exact Gender',
+      'Assessment Age', 'Assessment Gender',
       'Ulcer', 'Patch', 'Lump', 'Difficulty', 'Burning',
       'Smoke', 'Smoke Start', 'Smoke Duration', 'Smoke Qty',
       'Chew', 'Chew Start', 'Chew Duration', 'Chew Freq',
@@ -73,6 +74,8 @@ export default function AdminDashboard() {
         `"${sub.name || ''}"`,
         `"${sub.state || ''}"`,
         `"${typeof sub.language === 'object' ? (sub.language?.label || sub.language?.value) : (sub.language || 'English')}"`,
+        `"${f.profileAge || 'N/A'}"`,
+        `"${f.profileGender || 'N/A'}"`,
         `"${safeLabel(f.age)}"`,
         `"${safeLabel(f.gender)}"`,
         `"${safeLabel(f.ulcer)}"`,

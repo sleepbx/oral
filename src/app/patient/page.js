@@ -11,6 +11,8 @@ export default function PatientPortal() {
     language: 'hi', // Hindi first
     name: '',
     state: '',
+    profileAge: '',
+    profileGender: '',
     ulcer: null,
     patch: null,
     lump: null,
@@ -52,6 +54,11 @@ export default function PatientPortal() {
       profileDesc: "Enter your details to begin the screening.",
       nameLabel: "Full Name",
       stateLabel: "State",
+      ageLabel: "Age",
+      genderLabel: "Gender",
+      genderMale: "Male",
+      genderFemale: "Female",
+      genderOther: "Other",
       continueBtn: "Continue",
       backBtn: "Back",
       processing: "Processing...",
@@ -122,6 +129,11 @@ export default function PatientPortal() {
       profileDesc: "स्क्रीनिंग शुरू करने के लिए अपना विवरण दर्ज करें।",
       nameLabel: "पूरा नाम",
       stateLabel: "राज्य",
+      ageLabel: "आयु",
+      genderLabel: "लिंग",
+      genderMale: "पुरुष",
+      genderFemale: "महिला",
+      genderOther: "अन्य",
       continueBtn: "जारी रखें",
       backBtn: "पीछे",
       processing: "प्रसंस्करण...",
@@ -213,7 +225,7 @@ export default function PatientPortal() {
 
     // Step 2: Profile
     if (step === 2) {
-      if (!formData.name || !formData.state) return setErrorMsg(str.errFill);
+      if (!formData.name || !formData.state || !formData.profileAge || !formData.profileGender) return setErrorMsg(str.errFill);
       goNext(3);
       return;
     }
@@ -511,6 +523,31 @@ export default function PatientPortal() {
                   <option key={s} value={s} />
                 ))}
               </datalist>
+            </div>
+            <div className="input-group">
+              <label className="label">{str.ageLabel}</label>
+              <input 
+                type="number" 
+                className="input-field" 
+                placeholder="25"
+                min="0"
+                max="120"
+                value={formData.profileAge}
+                onChange={e => setFormData({...formData, profileAge: e.target.value})}
+              />
+            </div>
+            <div className="input-group">
+              <label className="label">{str.genderLabel}</label>
+              <select 
+                className="input-field" 
+                value={formData.profileGender}
+                onChange={e => setFormData({...formData, profileGender: e.target.value})}
+              >
+                <option value="" disabled>Select...</option>
+                <option value="Male">{str.genderMale}</option>
+                <option value="Female">{str.genderFemale}</option>
+                <option value="Other">{str.genderOther}</option>
+              </select>
             </div>
           </div>
         );

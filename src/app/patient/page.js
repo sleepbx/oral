@@ -366,21 +366,35 @@ export default function PatientPortal() {
     setLoading(true);
     setRiskResult({ riskLevel, message, score });
     
-    const newSubmission = {
-      id: Date.now().toString(),
-      date: new Date().toISOString(),
-      name: formData.name,
-      state: formData.state,
-      language: formData.language,
-      formData: formData,
-      hasSymptoms,
-      score,
-      result: riskLevel
-    };
-    
     try {
       const existing = localStorage.getItem('oral_submissions');
       const submissions = existing ? JSON.parse(existing) : [];
+      
+      let nextId = 1;
+      if (submissions.length > 0) {
+        const numericIds = submissions
+          .map(s => parseInt(s.id))
+          .filter(id => !isNaN(id) && id < 1000000000); // ignore timestamp IDs
+        
+        if (numericIds.length > 0) {
+          nextId = Math.max(...numericIds) + 1;
+        } else {
+          nextId = submissions.length + 1;
+        }
+      }
+
+      const newSubmission = {
+        id: nextId.toString(),
+        date: new Date().toISOString(),
+        name: formData.name,
+        state: formData.state,
+        language: formData.language,
+        formData: formData,
+        hasSymptoms,
+        score,
+        result: riskLevel
+      };
+      
       submissions.push(newSubmission);
       localStorage.setItem('oral_submissions', JSON.stringify(submissions));
     } catch (err) {

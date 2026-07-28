@@ -176,7 +176,8 @@ export default function PatientPortal() {
     }
   };
 
-  const str = t[formData.language];
+  const langKey = typeof formData.language === 'string' ? formData.language : formData.language?.value || 'hi';
+  const str = t[langKey] || t['hi'];
 
   const goNext = (nextStep) => {
     setHistory([...history, step]);

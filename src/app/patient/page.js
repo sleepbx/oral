@@ -115,11 +115,11 @@ export default function PatientPortal() {
       errFill: "Please fill out all fields to continue.",
       errSelect: "Please select an option to continue.",
       errConsent: "You must agree to the terms to proceed.",
-      disclaimerMainTitle: "Disclaimer & Consent",
+      disclaimerMainTitle: "Consent",
       disclaimerMainText1: "Oral cancer is a serious health concern, and early detection is key to improving outcomes. Many people are unaware of their personal risk, and access to regular screening can be limited. Mobile applications can provide a simple, convenient way for individuals to assess their risk and get guidance on seeking professional care.",
       disclaimerMainText2: "This study focuses on developing and validating a mobile app for self-assessment of oral cancer risk, helping users understand their risk level and promoting timely consultation with dental or medical professionals.",
       disclaimerConsent: "I confirm that I have read and understood the information above and voluntarily agree to participate.",
-      disclaimerTitle: "Disclaimer",
+      disclaimerTitle: "Consent",
       disclaimerText: "Oral cancer is a serious health concern, and early detection is key to improving outcomes. This application is for informational self-assessment purposes only and does not substitute professional medical advice, diagnosis, or treatment. Your participation was completely voluntary."
     },
     hi: {
@@ -190,11 +190,11 @@ export default function PatientPortal() {
       errFill: "कृपया जारी रखने के लिए सभी फ़ील्ड भरें।",
       errSelect: "कृपया जारी रखने के लिए एक विकल्प चुनें।",
       errConsent: "आगे बढ़ने के लिए आपको शर्तों से सहमत होना होगा।",
-      disclaimerMainTitle: "अस्वीकरण और सहमति",
+      disclaimerMainTitle: "Consent (सहमति)",
       disclaimerMainText1: "मुँह का कैंसर एक गंभीर स्वास्थ्य समस्या है, और इसका जल्दी पता लगाना परिणामों को सुधारने में महत्वपूर्ण है। कई लोग अपने व्यक्तिगत जोखिम से अनजान हैं और नियमित जांच तक उनकी पहुँच सीमित हो सकती है। मोबाइल एप्लिकेशन व्यक्तियों को अपने जोखिम का सरल और सुविधाजनक तरीके से मूल्यांकन करने और पेशेवर देखभाल लेने के मार्गदर्शन में मदद कर सकते हैं।",
       disclaimerMainText2: "यह अध्ययन मौखिक कैंसर जोखिम के स्वयं मूल्यांकन के लिए मोबाइल एप्लिकेशन विकसित और सत्यापित करने पर केंद्रित है, जिससे उपयोगकर्ताओं को उनके जोखिम स्तर को समझने और दंत या चिकित्सा पेशेवरों के साथ समय पर परामर्श को बढ़ावा देने में मदद मिलती है।",
       disclaimerConsent: "मैं पुष्टि करता/करती हूँ कि मैंने उपरोक्त जानकारी पढ़ और समझ ली है और स्वेच्छा से भाग लेने के लिए सहमत हूँ।",
-      disclaimerTitle: "अस्वीकरण",
+      disclaimerTitle: "Consent (सहमति)",
       disclaimerText: "मुँह का कैंसर एक गंभीर स्वास्थ्य समस्या है, और इसका जल्दी पता लगाना परिणामों को सुधारने में महत्वपूर्ण है। यह एप्लिकेशन केवल सूचनात्मक स्व-मूल्यांकन उद्देश्यों के लिए है और पेशेवर चिकित्सा सलाह का विकल्प नहीं है। आपकी भागीदारी पूरी तरह से स्वैच्छिक थी।"
     }
   };
@@ -763,11 +763,6 @@ export default function PatientPortal() {
               <div className={`badge ${badgeClass}`} style={{ fontSize: '1.75rem', padding: '0.75rem 1.5rem', borderRadius: 'var(--radius-md)' }}>
                 {riskResult.riskLevel}
               </div>
-              {riskResult.score !== null && (
-                <div style={{ marginTop: '1rem', fontSize: '1.25rem', fontWeight: 500, color: 'var(--text-main)' }}>
-                  {str.scoreTitle} {riskResult.score}
-                </div>
-              )}
             </div>
 
             <div style={{ 
